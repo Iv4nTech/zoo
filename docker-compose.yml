@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: bd_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'django_mysql'
+      MYSQL_USER: 'usuario'
+      MYSQL_PASSWORD: 'usuario1234'
+      MYSQL_ROOT_PASSWORD: 'admin1234'
+    ports:
+      - '7777:3306' 
+    volumes:
+      - ./mysql_data:/var/lib/mysql 

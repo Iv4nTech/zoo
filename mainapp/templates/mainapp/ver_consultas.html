@@ -1,0 +1,27 @@
+{% extends 'mainapp/base.html' %}
+
+{% block titulo_seccion %}
+Consultas
+{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  {% for consulta in veterinario.consultas.all %}
+  <div
+    class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden p-6 border border-gray-200 flex items-center justify-center cursor-pointer flex-col">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 truncate"><a href="#"
+        class="hover:text-blue-600">{{consulta}}</a></h2>
+    <div class="flex space-x-2 mt-4">
+      <a class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition duration-200"
+        href="{% url 'eliminar_consulta' pk_veterinario=veterinario.pk pk=consulta.pk %}">Eliminar</a>
+      <a class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded text-sm transition duration-200"
+        href="{% url 'editar_consulta' pk_veterinario=veterinario.pk pk=consulta.pk %}">Editar</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="mt-8">
+  <a class="block w-full md:w-auto text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200"
+    href="{% url 'crear_consulta' veterinario.pk %}">Crear nueva consulta</a>
+</div>
+{% endblock %}

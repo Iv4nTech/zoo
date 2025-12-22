@@ -1,0 +1,23 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+{% block titulo_seccion %}
+Detalles
+{% endblock %}
+
+{% block contenido %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+    <div class="p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">{{veterinario}}</h1>
+        <p><strong>Nombre:</strong> {{veterinario.nombre}}</p>
+        <p><strong>Sexo:</strong> {{veterinario.get_sexo_display}}</p>
+        <p><strong>Fecha de nacimiento:</strong> {{veterinario.fecha_nac}}</p>
+        {% if veterinario.foto %}
+        <img src="{{veterinario.foto.url}}" alt="{{veterinario.nombre}}" >
+        {% else %}
+        <img src="{% static 'img/avatar_default.jpg' %}" alt="Imagen default de un avatar">
+        {% endif %}
+        <a href="{% url 'ver_veterinarios' %}"
+            class="inline-block mt-4 text-green-600 hover:text-green-800 font-semibold">&larr; Volver a la lista</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+{% block titulo_seccion %}
+Veterinarios
+{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  {% for veterinario in veterinarios %}
+  <div
+    class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden p-6 border border-gray-200 flex items-center justify-center cursor-pointer flex-col"">
+        {% if veterinario.foto %}
+    <img src="{{veterinario.foto.url}}" alt="{{veterinario.nombre}}" class="w-24 h-24 object-cover mb-4 rounded-full">
+    {% else %}
+      <img src=" {% static 'img/avatar_default.jpg' %}" alt="{{animal.nombre}}" class="w-24 h-24 object-cover mb-4 rounded-full">
+    {% endif %}
+    <h2 class="text-xl font-bold text-gray-800 mb-4 truncate"><a href="{% url 'detalle_veterinario' veterinario.pk %}"
+        class="hover:text-green-600">{{veterinario}}</a></h2>
+    <div class="flex space-x-2 mt-4">
+      <a class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition duration-200"
+        href="{% url 'eliminar_veterinario' veterinario.pk %}">Eliminar</a>
+      <a class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded text-sm transition duration-200"
+        href="{% url 'editar_veterinario' veterinario.pk %}">Editar</a>
+         <a class="bg-purple-500 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded text-sm transition duration-200"
+        href="{% url 'ver_consultas' veterinario.pk %}">Ver consultas</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="mt-8">
+  <a class="block w-full md:w-auto text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200"
+    href="{% url 'crear_veterinario' %}">Crear Nuevo Veterinario</a>
+</div>
+{% endblock %}

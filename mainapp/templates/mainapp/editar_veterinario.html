@@ -1,0 +1,20 @@
+{% extends 'mainapp/base.html' %}
+
+{% block titulo_seccion %}
+{% if form.instance.pk %}Editar Veterinario{% else %}Crear Veterinario{% endif %}
+{% endblock %}
+
+{% block contenido %}
+<div class="max-w-lg mx-auto bg-white rounded-lg shadow-md p-8 border border-gray-200">
+    <form action="" method="post" enctype="multipart/form-data">
+        {%csrf_token%}
+
+        {{form.as_p}}
+
+        <div class="mt-6">
+            <button type="submit"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, TemplateView
+from .models import Animal, Veterinario, VacunaAnimal, Consulta
+from .forms import AnimalForm, VeterinarioForm, VacunaAnimalForm, ConsultaForm
+from django.urls import reverse_lazy
+
+class ver_animales_veterinarios(ListView):
+    model = Animal
+    template_name = 'mainapp/inicio.html'
+    context_object_name = 'animales'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['veterinarios'] = Veterinario.objects.all()
+        return context
+    
+class ver_animales(ListView):
+    model = Animal
+    template_name = 'mainapp/ver_animales.html'
+    context_object_name = 'animales'
+
+class ver_veterinarios(ListView):
+    model = Veterinario
+    template_name = 'mainapp/ver_veterinarios.html'
+    context_object_name = 'veterinarios'
+
+class detalle_aniamles(DetailView):
+    model = Animal
+    template_name = 'mainapp/detalle_animal.html'
+    context_object_name = 'animal'
+
+class detalle_veterinario(DetailView):
+    model = Veterinario
+    template_name = 'mainapp/detalle_veterinario.html'
+    context_object_name = 'veterinario'
+    
+class editar_animal(UpdateView):
+    model = Animal
+    template_name = 'mainapp/editar_animal.html'
+    success_url = reverse_lazy('inicio')
+    form_class = AnimalForm
+
+class eliminar_animal(DeleteView):
+    model = Animal
+    template_name = 'mainapp/eliminar_animal.html'
+    success_url = reverse_lazy('inicio')
+
+class crear_animal(CreateView):
+    model = Animal
+    template_name = 'mainapp/editar_animal.html'
+    success_url = reverse_lazy('inicio')
+    form_class = AnimalForm
+
+
+class editar_veterinario(UpdateView):
+    model = Veterinario
+    template_name = 'mainapp/editar_veterinario.html'
+    success_url = reverse_lazy('inicio')
+    form_class = VeterinarioForm
+
+class eliminar_veterinario(DeleteView):
+    model = Veterinario
+    template_name = 'mainapp/eliminar_veterinario.html'
+    success_url = reverse_lazy('inicio')
+
+class crear_veterinario(CreateView):
+    model = Veterinario
+    template_name = 'mainapp/editar_veterinario.html'
+    success_url = reverse_lazy('inicio')
+    form_class = VeterinarioForm
+
+def ver_vacunas_animal(request, animal_pk):
+    animal = get_object_or_404(Animal, pk=animal_pk)
+    return render(request, 'mainapp/ver_vacunas_animal.html', {'animal':animal})
+
+
+def crear_vacunas_animal(request, animal_pk):
+    
+    animal = get_object_or_404(Animal, pk=animal_pk)
+
+    if request.method == 'POST':
+        form = VacunaAnimalForm(request.POST)
+
+        if form.is_valid():
+            nueva_vacuna = form.save(commit=False)
+            nueva_vacuna.animal = animal
+            nueva_vacuna.save()
+            return redirect('inicio') 
+    else:
+        form = VacunaAnimalForm()
+    
+
+    return render(request, 'mainapp/editar_vacunas_animal.html', {'form':form})
+
+def editar_vacunas_animal(request, animal_pk, pk):
+    
+    animal = get_object_or_404(Animal, pk=animal_pk)
+    vacunaAnimal = get_object_or_404(VacunaAnimal, pk=pk)
+
+    if request.method == 'POST':
+        form = VacunaAnimalForm(request.POST, instance=vacunaAnimal)
+
+        if form.is_valid():
+            nueva_vacuna = form.save(commit=False)
+            nueva_vacuna.animal = animal
+            nueva_vacuna.save()
+            return redirect('inicio') 
+    else:
+        form = VacunaAnimalForm(instance=vacunaAnimal)
+    
+
+    return render(request, 'mainapp/editar_vacunas_animal.html', {'form':form})
+
+
+def eliminar_vacunas_animal(request, animal_pk, pk):
+
+    vacunaAnimal = get_object_or_404(VacunaAnimal, pk=pk, animal_id=animal_pk)
+
+    if request.method == 'POST':
+        vacunaAnimal.delete()
+        return redirect('inicio') 
+    
+    return render(request, 'mainapp/eliminar_vacunas_animal.html', {'vacuna':vacunaAnimal})
+
+
+class verCnsultas(DetailView):
+    model = Veterinario
+    template_name = 'mainapp/ver_consultas.html'
+    context_object_name = 'veterinario'
+
+def crear_consulta(request, pk):
+    veterinario = get_object_or_404(Veterinario, pk=pk)
+
+    if request.method == 'POST':
+        form = ConsultaForm(request.POST)
+        
+        if form.is_valid():
+            nueva_consulta = form.save(commit=False)
+            nueva_consulta.veterinario = veterinario
+            nueva_consulta.save()
+            return redirect('ver_consultas', pk=pk)
+            
+    else:
+        form = ConsultaForm()
+    return render(request, 'mainapp/editar_consulta.html', {'form': form,'veterinario': veterinario })
+
+def editar_consulta(request, pk_veterinario, pk):
+    veterinario = get_object_or_404(Veterinario, pk=pk_veterinario)
+    consulta = get_object_or_404(Consulta, pk=pk)
+
+    if request.method == 'POST':
+        form = ConsultaForm(request.POST, instance=consulta)
+        
+        if form.is_valid():
+            nueva_consulta = form.save(commit=False)
+            nueva_consulta.veterinario = veterinario
+            nueva_consulta.save()
+            return redirect('ver_consultas', pk=pk_veterinario)
+            
+    else:
+        form = ConsultaForm(instance=consulta)
+    return render(request, 'mainapp/editar_consulta.html', {'form': form,'veterinario': veterinario })
+
+def eliminar_consulta(request, pk_veterinario, pk):
+    consulta = get_object_or_404(Consulta, pk=pk, veterinario_id=pk_veterinario)
+
+    if request.method == 'POST':
+        consulta.delete()
+        
+        return redirect('ver_consultas', pk=pk_veterinario)
+       
+    return render(request, 'mainapp/eliminar_consulta.html')
