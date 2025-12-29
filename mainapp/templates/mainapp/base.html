@@ -22,6 +22,18 @@
                         class="text-white hover:text-blue-200 transition duration-300">Animales</a></li>
                 <li><a href="{% url 'ver_veterinarios' %}"
                         class="text-white hover:text-blue-200 transition duration-300">Veterinarios</a></li>
+                {% if user.is_authenticated %}
+                 <li>Bienvenido {{user}}!</li>
+                 <li><form action="{% url 'logout' %}" method="post">
+                     {% csrf_token %} 
+                     <button type="submit" class="">Cerrar Sesión</button>
+                 </form></li>
+                {% else %}
+                  <li><form action="{% url 'login' %}" method="post">
+              {% csrf_token %} 
+              <button type="submit" class="">Iniciar sesión</button>
+            </form></li>
+            {% endif %}
             </ul>
         </div>
     </nav>

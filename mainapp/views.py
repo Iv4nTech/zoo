@@ -3,6 +3,8 @@ from django.views.generic import ListView, DetailView, CreateView, DeleteView, U
 from .models import Animal, Veterinario, VacunaAnimal, Consulta
 from .forms import AnimalForm, VeterinarioForm, VacunaAnimalForm, ConsultaForm
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 
 class ver_animales_veterinarios(ListView):
     model = Animal
@@ -14,12 +16,13 @@ class ver_animales_veterinarios(ListView):
         context['veterinarios'] = Veterinario.objects.all()
         return context
     
-class ver_animales(ListView):
+class ver_animales(PermissionRequiredMixin, ListView):
     model = Animal
     template_name = 'mainapp/ver_animales.html'
     context_object_name = 'animales'
+    permission_required = 'mainapp.view_animal'
 
-class ver_veterinarios(ListView):
+class ver_veterinarios(LoginRequiredMixin, ListView):
     model = Veterinario
     template_name = 'mainapp/ver_veterinarios.html'
     context_object_name = 'veterinarios'
@@ -29,10 +32,13 @@ class detalle_aniamles(DetailView):
     template_name = 'mainapp/detalle_animal.html'
     context_object_name = 'animal'
 
-class detalle_veterinario(DetailView):
+class detalle_veterinario(UserPassesTestMixin,DetailView):
     model = Veterinario
     template_name = 'mainapp/detalle_veterinario.html'
     context_object_name = 'veterinario'
+
+    def test_func(self):
+        return self.request.user.is_staff
     
 class editar_animal(UpdateView):
     model = Animal
@@ -69,6 +75,7 @@ class crear_veterinario(CreateView):
     success_url = reverse_lazy('inicio')
     form_class = VeterinarioForm
 
+@login_required
 def ver_vacunas_animal(request, animal_pk):
     animal = get_object_or_404(Animal, pk=animal_pk)
     return render(request, 'mainapp/ver_vacunas_animal.html', {'animal':animal})
@@ -128,6 +135,7 @@ class verCnsultas(DetailView):
     template_name = 'mainapp/ver_consultas.html'
     context_object_name = 'veterinario'
 
+@permission_required('mainapp.create_consulta')
 def crear_consulta(request, pk):
     veterinario = get_object_or_404(Veterinario, pk=pk)
 
@@ -144,6 +152,10 @@ def crear_consulta(request, pk):
         form = ConsultaForm()
     return render(request, 'mainapp/editar_consulta.html', {'form': form,'veterinario': veterinario })
 
+def es_admin(user):
+    return user.is_staff 
+
+@user_passes_test(es_admin)
 def editar_consulta(request, pk_veterinario, pk):
     veterinario = get_object_or_404(Veterinario, pk=pk_veterinario)
     consulta = get_object_or_404(Consulta, pk=pk)
