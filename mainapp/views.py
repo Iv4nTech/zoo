@@ -3,10 +3,24 @@ from django.views.generic import ListView, DetailView, CreateView, DeleteView, U
 from .models import Animal, Veterinario, VacunaAnimal, Consulta
 from .forms import AnimalForm, VeterinarioForm, VacunaAnimalForm, ConsultaForm
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, AccessMixin
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.http import HttpResponseForbidden
 
-class ver_animales_veterinarios(ListView):
+class soloAdmins(AccessMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+def solo_usuarios_premium(function_view):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return HttpResponseForbidden("Acceso denegado")
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+class ver_animales_veterinarios(soloAdmins,ListView):
     model = Animal
     template_name = 'mainapp/inicio.html'
     context_object_name = 'animales'
